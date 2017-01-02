@@ -17,21 +17,19 @@ def parse_arguments():
 
 def resize_image(arguments):
     image = Image.open(arguments.path_to_img)
-    if arguments.output is not None:
-        path_to_img = os.path.join(arguments.output, os.path.split(arguments.path_to_img)[1])
-    else:
-        path_to_img = arguments.path_to_img
+
     width = arguments.width
     height = arguments.height
     scale = arguments.scale
     if scale is not None:
         if width or height is not None:
             print("Please use one type of resize.")
-            exit()
+            return
         new_width, new_height = get_new_image_size_by_scale(image, scale)
     else:
         new_width, new_height = get_new_image_size_by_parametrs(image, width, height)
-    resize_and_save_image(image, new_width, new_height, path_to_img)
+    new_image = image.resize((new_width, new_height))
+    return new_image
 
 
 def get_new_image_size_by_scale(image, scale):
@@ -44,11 +42,12 @@ def get_new_image_size_by_parametrs(image, width, height):
     return (int(width or image.width), int(height or image.height))
 
 
-def resize_and_save_image(image, width, height, path_to_save):
+def save_image(image, path_to_save):
     print("saving image to {0}".format(path_to_save))
-    new_image = image.resize((width, height))
-    new_image.save(get_new_image_name(width, height, path_to_save))
-    print("resizing finished")
+    new_path_to_save = get_new_image_name(image.width, image.height, path_to_save)
+    image.save(new_path_to_save)
+    print("resizing finished \nnew image was saved ")
+
 
 def get_new_image_name(width, height, full_path_to_img):
     image_path, image_format = os.path.splitext(full_path_to_img)
@@ -59,5 +58,11 @@ def get_new_image_name(width, height, full_path_to_img):
 
 if __name__ == '__main__':
     arguments = parse_arguments()
-    path_save = arguments.output
+    if arguments.output is not None:
+        path_to_img = os.path.join(arguments.output, os.path.split(arguments.path_to_img)[1])
+    else:
+        path_to_img = arguments.path_to_img
     img = resize_image(arguments)
+    if img is None:
+        exit()
+    save_image(img, path_to_img)
