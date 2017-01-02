@@ -3,41 +3,6 @@ import os
 from PIL import Image
 
 
-def resize_image(path_to_original, **kwargs):
-    im = Image.open(path_to_original)
-    width = kwargs.get('width')
-    height = kwargs.get('height')
-    scale = kwargs.get('scale')
-    output = kwargs.get('output')
-    if scale is not None:
-        scale = int(scale)
-        new_size = (int(im.width*scale), int(im.height*scale))
-        im = im.resize(new_size)
-        if (height or width) is not None:
-            exit(1)
-        else:
-            return im
-    if width is not None and height is not None:
-        width = int(width)
-        height = int(height)
-        if int(height/im.height) != int(im.width/width):
-            exit("your size is not adequate")
-    if height is None and width is not None:
-        width = int(width)
-        height = int(im.width/width*im.height)
-    if width is None and height is not None:
-        height = int(height)
-        width = int(height/im.height*im.width)
-    if width is None and height is None:
-        exit("please input width or heigth") 
-    im = im.resize((width, height))
-    return im
-
-
-def save_image(new_image, path_to_save):
-    print("saving to {0}".format(path_to_save))
-    new_image.save(path_to_save)
-
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -47,16 +12,52 @@ def parse_arguments():
     parser.add_argument("--height", help="height of the image")
     parser.add_argument("--scale", help="scale of the resizing")
     parser.add_argument("--output", help="output path")
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
+
+
+def resize_image(arguments):
+    image = Image.open(arguments.path_to_img)
+    if arguments.output is not None:
+        path_to_img = os.path.join(arguments.output, os.path.split(arguments.path_to_img)[1])
+    else:
+        path_to_img = arguments.path_to_img
+    width = arguments.width
+    height = arguments.height
+    scale = arguments.scale
+    if scale is not None:
+        if width or height is not None:
+            print("Please use one type of resize.")
+            exit()
+        new_width, new_height = get_new_image_size_by_scale(image, scale)
+    else:
+        new_width, new_height = get_new_image_size_by_parametrs(image, width, height)
+    resize_and_save_image(image, new_width, new_height, path_to_img)
+
+
+def get_new_image_size_by_scale(image, scale):
+    scale = int(scale)
+    new_size = (int(image.width*scale), int(image.height*scale))
+    return new_size
+
+
+def get_new_image_size_by_parametrs(image, width, height):
+    return (int(width or image.width), int(height or image.height))
+
+
+def resize_and_save_image(image, width, height, path_to_save):
+    print("saving image to {0}".format(path_to_save))
+    new_image = image.resize((width, height))
+    new_image.save(get_new_image_name(width, height, path_to_save))
+    print("resizing finished")
+
+def get_new_image_name(width, height, full_path_to_img):
+    image_path, image_format = os.path.splitext(full_path_to_img)
+    new_full_name = "{0}__{1}x{2}{3}".format(image_path,width, height, image_format)
+    return new_full_name
+
 
 
 if __name__ == '__main__':
     arguments = parse_arguments()
     path_save = arguments.output
-    img = resize_image(arguments.path_to_img, scale=arguments.scale,
-                 width=arguments.width, height=arguments.height)
-    if path_save is None:
-        name = os.path.splitext(os.path.basename(arguments.path_to_img))
-        path_save = "{0}__{1}x{2}.jpg".format(name[0], img.width, img.height)
-    save_image(img, path_save)
+    img = resize_image(arguments)

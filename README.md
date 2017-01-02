@@ -1,4 +1,5 @@
 # 12_image_resize
+
 This script is using to resize your image
 
 ## Usage:
