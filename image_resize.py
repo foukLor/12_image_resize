@@ -14,17 +14,18 @@ def parse_arguments():
     parser.add_argument("--output", help="output path")
     return parser.parse_args()
 
+def get_image_by_path(path_to_img):
+    return Image.open(path_to_img)
+
 
 def resize_image(arguments):
-    image = Image.open(arguments.path_to_img)
-
+    image = get_image_by_path(arguments.path_to_img)
     width = arguments.width
     height = arguments.height
     scale = arguments.scale
     if scale is not None:
         if width or height is not None:
-            print("Please use one type of resize.")
-            return
+            return None
         new_width, new_height = get_new_image_size_by_scale(image, scale)
     else:
         new_width, new_height = get_new_image_size_by_parametrs(image, width, height)
@@ -43,10 +44,8 @@ def get_new_image_size_by_parametrs(image, width, height):
 
 
 def save_image(image, path_to_save):
-    print("saving image to {0}".format(path_to_save))
     new_path_to_save = get_new_image_name(image.width, image.height, path_to_save)
     image.save(new_path_to_save)
-    print("resizing finished \nnew image was saved ")
 
 
 def get_new_image_name(width, height, full_path_to_img):
@@ -65,4 +64,5 @@ if __name__ == '__main__':
     img = resize_image(arguments)
     if img is None:
         exit()
-    save_image(img, path_to_img)
+    if save_image(img, path_to_img) is None
+        print("Please use one type of resize.")
