@@ -63,6 +63,6 @@ if __name__ == '__main__':
         path_to_img = arguments.path_to_img
     img = resize_image(arguments)
     if img is None:
-        exit()
-    if save_image(img, path_to_img) is None
         print("Please use one type of resize.")
+        exit()
+    save_image(img, path_to_img)
