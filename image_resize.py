@@ -31,7 +31,7 @@ def resize_image(arguments):
 
 
 def print_warning_before_change_paramters():
-    print("Size parametrs of your image will be changed")
+    print("Proportions of your image will be changed")
 
 def print_new_image_name(image_name):
     print("New name - {0}".format(image_name))
@@ -39,14 +39,15 @@ def print_new_image_name(image_name):
 
 def get_new_image_size_by_scale(image, scale):
     scale = int(scale)
-    print_warning_before_change_paramters()
     new_size = (int(image.width*scale), int(image.height*scale))
     return new_size
 
 
 def get_new_image_size_by_parametrs(image, width, height):
-    print_warning_before_change_paramters()
-    return (int(width or image.width), int(height or image.height))
+    new_size = (int(width or image.width), int(height or image.height))
+    if not is_proportional(image.size, new_size):
+        print_warning_before_change_paramters()
+    return new_size
 
 
 def save_image(image, path_to_save):
@@ -54,6 +55,8 @@ def save_image(image, path_to_save):
     image.save(new_path_to_save)
     print_new_image_name(new_path_to_save)
 
+def is_proportional(old_size, new_size):
+    return float(old_size[0]/old_size[1]) == float(new_size[0]/new_size[1])
 
 def get_new_image_name(width, height, full_path_to_img):
     image_path, image_format = os.path.splitext(full_path_to_img)
