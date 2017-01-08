@@ -26,13 +26,12 @@ def resize_image(arguments):
         new_width, new_height = get_new_image_size_by_scale(image, arguments.scale)
     else:
         new_width, new_height = get_new_image_size_by_parametrs(image, arguments.width, arguments.height)
-    print_warning_before_resized()
     new_image = image.resize((new_width, new_height))
     return new_image
 
 
-def print_warning_before_resized():
-    print("Your image will be resized")
+def print_warning_before_change_paramters():
+    print("Size parametrs of your image will be changed")
 
 def print_new_image_name(image_name):
     print("New name - {0}".format(image_name))
@@ -40,11 +39,13 @@ def print_new_image_name(image_name):
 
 def get_new_image_size_by_scale(image, scale):
     scale = int(scale)
+    print_warning_before_change_paramters()
     new_size = (int(image.width*scale), int(image.height*scale))
     return new_size
 
 
 def get_new_image_size_by_parametrs(image, width, height):
+    print_warning_before_change_paramters()
     return (int(width or image.width), int(height or image.height))
 
 
